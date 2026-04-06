@@ -178,6 +178,31 @@ Docker 会直接修改 iptables 规则，UFW 防火墙无法阻止 Docker 暴露
 | curl | HTTP 请求 | 通常已安装 |
 | dig | DNS 查询 | 通常已安装 |
 
+## 安全 SLI（服务等级指示器）
+
+**系统安全合规定义：**
+
+```
+安全 SLI = 0 公网暴露数据库 + 0 UFW穿透容器 + 0 弱口令 + 0 勒索特征
+```
+
+**合规判定：**
+
+| 指标 | 合格标准 | 检测方法 |
+|------|----------|----------|
+| 公网暴露数据库 | 0 个 | `external_scan.sh` + `port_scan.sh` |
+| UFW穿透容器 | 0 个 | `iptables -L DOCKER-USER -n` |
+| 弱口令服务 | 0 个 | 无认证探测 |
+| 勒索特征 | 0 个 | `read_me` 索引检测 |
+
+**最终报告输出：**
+```
+🟢 PASS - 系统安全合规
+🔴 FAIL - 发现 N 项违规，详见 findings[]
+```
+
+详细事件响应流程见 `references/security-runbook.md`
+
 ## 文件结构
 
 ```
@@ -197,13 +222,15 @@ server-port-security/
 └── references/
     ├── sensitive_ports.md     # 敏感端口详细说明
     ├── deep_checks.md         # 深度检查清单
-    └── docker_fix_guide.md    # Docker 修复指南
+    ├── docker_fix_guide.md    # Docker 修复指南
+    └── security-runbook.md    # 安全事件响应 Runbook
 ```
 
 ## 版本历史
 
 | 版本 | 更新内容 |
 |------|----------|
+| v4.4 | 新增安全 Runbook、定义安全 SLI 合规判定 |
 | v4.3 | 新增外部扫描、Nginx检查、源站IP检测、告警分级 |
 | v4.2 | 修正废弃包和流污染 |
 | v4.0 | LLM优化架构 - SSH原生集成、JSON输出、Human-in-the-Loop |

@@ -675,7 +675,7 @@ ufw allow in on tailscale0 to any port 22
 
 ---
 
-**文档版本**: 4.3
+**文档版本**: 4.4
 **最后更新**: 2026-04-06
 **更新内容**:
 - v3.0: 补充审计日志、Web目录权限、容器安全增强、镜像漏洞扫描、文件完整性监控、拉取式备份、不可变快照、零信任网络架构
@@ -684,3 +684,4 @@ ufw allow in on tailscale0 to any port 22
 - v4.1: **完成所有文档** - deep_checks.md、docker_fix_guide.md、SKILL.md更新
 - v4.2: **修正废弃包和流污染** - rssh替换为SSH原生命令限制、添加JSON输出流分离规范
 - v4.3: **补充核心功能** - 外部端口扫描脚本、Nginx安全检查脚本、源站IP暴露检测、告警分级机制配置
+- v4.4: **安全 Runbook + SLI** - 安全事件响应手册、安全合规判定标准

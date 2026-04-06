@@ -368,4 +368,32 @@ curl -m 5 http://<公网IP>:9200
 | `references/sensitive_ports.md` | 敏感端口详细说明 |
 | `references/deep_checks.md` | 深度检查清单 |
 | `references/docker_fix_guide.md` | Docker修复指南 |
-| `config.yaml.example` | 配置文件模板 |
+| `references/security-runbook.md` | 安全事件响应 Runbook |
+
+---
+
+## 安全 SLI（服务等级指示器）
+
+**系统安全合规定义：**
+
+```
+安全 SLI = 0 公网暴露数据库 + 0 UFW穿透容器 + 0 弱口令 + 0 勒索特征
+```
+
+**合规判定标准：**
+
+| 指标 | 合格标准 | 检测方法 |
+|------|----------|----------|
+| 公网暴露数据库 | 0 个 | `external_scan.sh` + `port_scan.sh` |
+| UFW穿透容器 | 0 个 | `iptables -L DOCKER-USER -n` |
+| 弱口令服务 | 0 个 | 无认证探测 |
+| 勒索特征 | 0 个 | `read_me` 索引检测 |
+
+**最终报告必须输出合规判定：**
+
+```
+🟢 PASS - 系统安全合规，所有 SLI 指标达标
+🔴 FAIL - 发现 N 项违规，详见 findings[]
+```
+
+详细事件响应流程见 `references/security-runbook.md`
