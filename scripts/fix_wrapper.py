@@ -5,8 +5,8 @@
 确保 Claude Code 在执行任何修复操作前必须获得用户明确确认。
 
 使用方法:
-    python fix_wrapper.py --target 104.250.159.108 --mode audit
-    python fix_wrapper.py --target 104.250.159.108 --mode fix --actions actions.json
+    python fix_wrapper.py --target <服务器IP> --mode audit
+    python fix_wrapper.py --target <服务器IP> --mode fix --actions actions.json
 """
 
 import argparse

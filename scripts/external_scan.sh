@@ -2,8 +2,8 @@
 # 外部端口扫描 - 在本机执行，扫描远程服务器公网暴露端口
 # 使用方法:
 #   ./external_scan.sh <目标公网IP>
-#   ./external_scan.sh 104.250.159.108
-#   ./external_scan.sh 104.250.159.108 --json
+#   ./external_scan.sh <公网IP>
+#   ./external_scan.sh <公网IP> --json
 #
 # 依赖: nmap (Windows 用户可用 WSL 或安装 Nmap for Windows)
 
@@ -33,7 +33,7 @@ done
 
 if [ -z "$TARGET_IP" ]; then
     echo "用法: $0 <目标公网IP> [--json]"
-    echo "示例: $0 104.250.159.108 --json"
+    echo "示例: $0 192.168.1.1 --json"
     exit 1
 fi
 

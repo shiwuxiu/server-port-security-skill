@@ -17,10 +17,10 @@
 
 ```bash
 # Claude Code 本地执行，通过SSH隧道远程取证
-ssh -i ~/.ssh/id_rsa user@104.250.159.108 'bash -s' < scripts/port_scan.sh
+ssh -i ~/.ssh/id_rsa user@<服务器IP> 'bash -s' < scripts/port_scan.sh
 
 # 带参数执行
-ssh -i ~/.ssh/id_rsa user@104.250.159.108 'bash -s' < scripts/port_scan.sh -- --json
+ssh -i ~/.ssh/id_rsa user@<服务器IP> 'bash -s' < scripts/port_scan.sh -- --json
 ```
 
 **优势**：
@@ -47,7 +47,7 @@ ssh -i ~/.ssh/id_rsa user@104.250.159.108 'bash -s' < scripts/port_scan.sh -- --
 ```json
 {
   "timestamp": "2026-04-06T10:00:00Z",
-  "target": "104.250.159.108",
+  "target": "<服务器IP>",
   "status": "COMPLETE",
   "findings": [
     {
@@ -148,10 +148,10 @@ parameters:
 
 ```bash
 # 扫描（只读，可自动执行）
-./server-audit.sh --target 104.250.159.108 --mode audit
+./server-audit.sh --target <服务器IP> --mode audit
 
 # 修复（必须人工确认）
-./server-audit.sh --target 104.250.159.108 --mode fix --confirm
+./server-audit.sh --target <服务器IP> --mode fix --confirm
 ```
 
 #### 护栏机制二：修复前强制确认
@@ -199,7 +199,7 @@ echo "[$(date)] FIX_EXECUTED target=$TARGET actions=$ACTIONS user=$USER" \
 │                    Claude Code 安全排查工作流                     │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  用户: "帮我排查一下 104.250.x.x 的端口安全，最近ES索引归零了"    │
+│  用户: "帮我排查一下服务器的端口安全，最近ES索引归零了"              │
 │                                                                 │
 │  Claude Code 自动执行:                                          │
 │  ┌─────────────────────────────────────────────────────────┐   │
@@ -239,7 +239,7 @@ echo "[$(date)] FIX_EXECUTED target=$TARGET actions=$ACTIONS user=$USER" \
 | 项目 | 内容 |
 |------|------|
 | Skill名称 | `server-port-security` |
-| Skill路径 | `D:\projects\moredoc\server-port-security\` |
+| Skill路径 | `~/.claude/skills/server-port-security/` |
 | 触发场景 | 端口安全、服务器被黑、勒索攻击、安全排查、Docker端口、防火墙配置 |
 | 核心价值 | 发现并修复数据库端口暴露、Docker绕过防火墙、无认证服务等安全隐患 |
 
