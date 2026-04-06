@@ -2,9 +2,33 @@
 # 复制此文件为 config.yaml 并填入实际值
 
 # ============================================
-# 告警通知配置
+# 告警配置
 # ============================================
 alert:
+  # 告警分级（防止告警疲劳）
+  # CRITICAL: 立即通知（钉钉/邮件/微信）
+  # WARNING: 每日聚合报告
+  # INFO: 仅记录日志
+  levels:
+    critical:
+      - "RANSOMWARE_DETECTED"     # 勒索索引
+      - "DOCKER_DAEMON_EXPOSED"   # Docker Daemon 暴露
+      - "PORT_EXPOSED"            # 敏感端口暴露
+      - "SOURCE_IP_EXPOSED"       # 源站 IP 暴露
+      notify_immediately: true
+
+    warning:
+      - "NO_RATE_LIMIT"           # 无请求限流
+      - "VERSION_EXPOSED"         # 版本号暴露
+      - "NO_RESOURCE_LIMIT"       # 容器无资源限制
+      - "DISK_HIGH"               # 磁盘使用率高
+      aggregate_daily: true
+
+    info:
+      - "SSH_BRUTE_FORCE"         # SSH 爆破尝试
+      - "BACKUP_SUCCESS"          # 备份成功
+      log_only: true
+
   # 钉钉/企业微信 Webhook URL（留空则不发送通知）
   # 钉钉格式: https://oapi.dingtalk.com/robot/send?access_token=xxx
   # 企业微信格式: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxx

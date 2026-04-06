@@ -99,14 +99,39 @@ if response != "YES":
 ### 1.1 使用端口扫描脚本（推荐）
 
 ```bash
-# 通过SSH执行远程扫描
+# 内部扫描（通过SSH执行）
 ssh user@<服务器IP> 'bash -s' < scripts/port_scan.sh
 
 # JSON输出（供LLM分析）
 ssh user@<服务器IP> 'bash -s' < scripts/port_scan.sh -- --json
+
+# 外部扫描（本机执行，检测公网暴露）
+./scripts/external_scan.sh <公网IP>
+./scripts/external_scan.sh <公网IP> --json
 ```
 
-### 1.2 手动内部端口扫描
+### 1.2 Nginx 安全检查
+
+```bash
+# 本地检查
+./scripts/nginx_check.sh
+
+# 远程检查
+./scripts/nginx_check.sh --remote user@<服务器IP>
+
+# JSON输出
+./scripts/nginx_check.sh --json
+```
+
+### 1.3 源站 IP 暴露检测
+
+```bash
+# 检测域名是否通过 CDN 保护
+./scripts/source_ip_check.sh example.com
+./scripts/source_ip_check.sh example.com --json
+```
+
+### 1.4 手动内部端口扫描
 
 ```bash
 # IPv4监听端口
@@ -296,16 +321,31 @@ curl -m 5 http://<公网IP>:9200
 
 ---
 
+## 告警分级（防止告警疲劳）
+
+| 级别 | 事件类型 | 处理方式 |
+|------|----------|----------|
+| 🔴 CRITICAL | 勒索索引、Docker Daemon暴露、敏感端口暴露、源站IP暴露 | 立即通知 |
+| 🟠 WARNING | 无限流、版本暴露、无资源限制、磁盘高 | 每日聚合报告 |
+| 🟢 INFO | SSH爆破尝试、备份成功 | 仅日志 |
+
+配置详见 `config.yaml.example`
+
+---
+
 ## 易被忽视的盲区
 
-| 检查项 | 检测方法 |
-|--------|----------|
-| 云厂商安全组 | 提醒用户检查控制台 |
-| IPv6暴露 | `ss -tulnp | grep ":::"` |
-| Nginx版本暴露 | `curl -I 127.0.0.1 | grep Server` |
-| 审计日志缺失 | `systemctl status auditd` |
-| bash_history被清空 | `ls -la ~/.bash_history` |
-| 源站IP暴露 | 公网PING域名比对 |
+| 检查项 | 检测方法 | 脚本 |
+|--------|----------|------|
+| 云厂商安全组 | 提醒用户检查控制台 | - |
+| IPv6暴露 | `ss -tulnp \| grep ":::"` | `port_scan.sh` |
+| Nginx版本暴露 | `curl -I 127.0.0.1 \| grep Server` | `nginx_check.sh` |
+| Nginx无限流 | 检查 `limit_req` 配置 | `nginx_check.sh` |
+| 敏感文件可访问 | 检查 `.env` 等文件保护 | `nginx_check.sh` |
+| 审计日志缺失 | `systemctl status auditd` | - |
+| bash_history被清空 | `ls -la ~/.bash_history` | - |
+| 源站IP暴露 | 公网PING域名比对 | `source_ip_check.sh` |
+| 外部端口暴露 | 本机Nmap扫描 | `external_scan.sh` |
 
 ---
 
@@ -313,7 +353,10 @@ curl -m 5 http://<公网IP>:9200
 
 | 脚本 | 用途 | 输出格式 |
 |------|------|----------|
-| `scripts/port_scan.sh` | 端口扫描 | 默认/`--json` |
+| `scripts/port_scan.sh` | 内部端口扫描 | 默认/`--json` |
+| `scripts/external_scan.sh` | 外部端口扫描（本机执行） | 默认/`--json` |
+| `scripts/nginx_check.sh` | Nginx 安全配置检查 | 默认/`--json` |
+| `scripts/source_ip_check.sh` | 源站 IP 暴露检测 | 默认/`--json` |
 | `scripts/es_monitor.sh` | ES索引监控 | 日志 |
 | `scripts/port_monitor.sh` | 端口暴露监控 | 日志 |
 | `scripts/fix_wrapper.py` | 修复确认包装器 | JSON |

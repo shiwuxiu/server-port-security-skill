@@ -29,15 +29,29 @@ def log_audit(action: str, target: str, details: str = ""):
     with open(AUDIT_LOG, "a") as f:
         f.write(log_entry)
 
-def run_ssh_command(target: str, command: str, ssh_key: str = None, ssh_user: str = "root") -> tuple:
-    """通过SSH执行远程命令"""
+def run_ssh_command(target: str, command: str, ssh_key: str = None, ssh_user: str = "root", stdin_input: str = None) -> tuple:
+    """通过SSH执行远程命令
+
+    Args:
+        target: 目标服务器IP
+        command: 远程执行的命令
+        ssh_key: SSH私钥路径
+        ssh_user: SSH用户名
+        stdin_input: 通过stdin传递的内容（用于管道脚本）
+    """
     ssh_key = ssh_key or os.path.expanduser("~/.ssh/id_rsa")
     ssh_cmd = [
         "ssh", "-i", ssh_key, "-o", "StrictHostKeyChecking=accept-new",
         f"{ssh_user}@{target}", command
     ]
     try:
-        result = subprocess.run(ssh_cmd, capture_output=True, text=True, timeout=60)
+        result = subprocess.run(
+            ssh_cmd,
+            input=stdin_input,  # 通过stdin传递脚本内容
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
         return result.returncode, result.stdout, result.stderr
     except subprocess.TimeoutExpired:
         return -1, "", "Command timed out"
@@ -68,6 +82,9 @@ def confirm_fix(target: str, actions: list) -> bool:
     try:
         response = input("> ").strip()
     except EOFError:
+        # 非交互式环境（如CI/CD或被Claude Code调用）无法获取输入
+        print("\n⚠️  检测到非交互式环境，无法获取用户输入。")
+        print("如需自动确认，请使用 --yes 参数（需人工预先授权）。")
         response = ""
 
     if response == "YES":
@@ -118,12 +135,22 @@ def main():
         # 审计模式：只读检查
         log_audit("AUDIT_START", args.target)
 
-        # 执行端口扫描脚本
+        # 执行端口扫描脚本（本地脚本通过SSH stdin传递到远程执行）
         script_path = Path(__file__).parent / "port_scan.sh"
         ssh_key = os.path.expanduser(args.ssh_key)
 
-        cmd = f"bash -s < {script_path} -- --json"
-        returncode, stdout, stderr = run_ssh_command(args.target, f"bash -c '{cmd}'", ssh_key, args.ssh_user)
+        # 本地读取脚本内容，通过SSH stdin传递
+        with open(script_path, "r") as f:
+            script_content = f.read()
+
+        # 远程命令只接收stdin输入，带--json参数
+        returncode, stdout, stderr = run_ssh_command(
+            args.target,
+            "bash -s -- --json",  # bash -s 从stdin读取脚本
+            ssh_key,
+            args.ssh_user,
+            stdin_input=script_content  # 传递脚本内容
+        )
 
         if returncode == 0:
             print(stdout)

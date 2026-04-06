@@ -16,6 +16,12 @@ set -e
 OUTPUT_MODE="human"
 VERBOSE=""
 
+# 依赖检查
+if [ "$OUTPUT_MODE" = "json" ] && ! command -v jq &>/dev/null; then
+    echo '{"error": "jq is required for JSON output mode. Install with: apt-get install jq", "status": "FAILED"}'
+    exit 1
+fi
+
 while [[ $# -gt 0 ]]; do
     case $1 in
         --json)

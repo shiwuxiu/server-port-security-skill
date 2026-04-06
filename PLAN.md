@@ -257,12 +257,15 @@ echo "[$(date)] FIX_EXECUTED target=$TARGET actions=$ACTIONS user=$USER" \
 ```
 server-port-security/
 ├── SKILL.md                    # ✅ 已更新 - 包含LLM优化架构
-├── config.yaml.example         # ✅ 已创建 - 配置文件模板
+├── config.yaml.example         # ✅ 已更新 - 告警分级配置
 ├── scripts/
 │   ├── port_scan.sh           # ✅ 已更新 - 支持 --json 参数
+│   ├── external_scan.sh       # ✅ 新增 - 外部端口扫描（本机执行）
+│   ├── nginx_check.sh         # ✅ 新增 - Nginx安全配置检查
+│   ├── source_ip_check.sh     # ✅ 新增 - 源站IP暴露检测
 │   ├── es_monitor.sh          # ✅ 已创建 - ES索引监控
 │   ├── port_monitor.sh        # ✅ 已创建 - 端口暴露监控
-│   └── fix_wrapper.py         # ✅ 已创建 - Human-in-the-Loop护栏
+│   └── fix_wrapper.py         # ✅ 已修复 - SSH命令构造、EOFError处理
 └── references/
     ├── sensitive_ports.md     # ✅ 已创建 - 敏感端口详细说明
     ├── deep_checks.md         # ✅ 已创建 - 深度检查清单
@@ -638,20 +641,25 @@ ufw allow in on tailscale0 to any port 22
 
 ### 11.2 待完成文件
 
-- [ ] `references/deep_checks.md` - 深度检查清单
-- [ ] `references/docker_fix_guide.md` - Docker修复指南
-- [ ] `references/backup_strategy.md` - 备份策略指南
+- [x] `references/deep_checks.md` - 深度检查清单
+- [x] `references/docker_fix_guide.md` - Docker修复指南
+- [x] `scripts/external_scan.sh` - 外部端口扫描
+- [x] `scripts/nginx_check.sh` - Nginx安全检查
+- [x] `scripts/source_ip_check.sh` - 源站IP暴露检测
+- [ ] `references/backup_strategy.md` - 备份策略指南（可选）
+- [ ] 拉取式备份验证脚本（需要用户配置）
 
 ---
 
 ## 十二、Skill Roadmap
 
-| 版本 | 功能范围 | 防护能力 |
-|------|----------|----------|
-| v1.0 | 端口扫描、Docker绑定修复、强密码 | 挡住90%自动化扫描 |
-| v2.0 | SSH配置、Cron后门、Web权限、Nginx加固 | 挡住初级人工渗透 |
-| v3.0 | 容器资源限制、镜像版本锁定、漏洞扫描 | 架构层面强健 |
-| v4.0 | 拉取式备份、不可变快照、零信任网络 | 灾备兜底，极端情况可恢复 |
+| 版本 | 功能范围 | 防护能力 | 状态 |
+|------|----------|----------|------|
+| v1.0 | 端口扫描、Docker绑定修复、强密码 | 挡住90%自动化扫描 | ✅ 完成 |
+| v2.0 | SSH配置、Cron后门、Web权限、Nginx加固 | 挡住初级人工渗透 | ✅ 完成 |
+| v3.0 | 容器资源限制、镜像版本锁定、漏洞扫描 | 架构层面强健 | ✅ 完成 |
+| v4.0 | 拉取式备份、不可变快照、零信任网络 | 灾备兜底，极端情况可恢复 | ⚠️ 部分完成 |
+| v4.3 | 外部扫描、Nginx检查、源站IP检测、告警分级 | 内外兼修的检测能力 | ✅ 完成 |
 
 ---
 
@@ -667,7 +675,7 @@ ufw allow in on tailscale0 to any port 22
 
 ---
 
-**文档版本**: 4.2
+**文档版本**: 4.3
 **最后更新**: 2026-04-06
 **更新内容**:
 - v3.0: 补充审计日志、Web目录权限、容器安全增强、镜像漏洞扫描、文件完整性监控、拉取式备份、不可变快照、零信任网络架构
@@ -675,3 +683,4 @@ ufw allow in on tailscale0 to any port 22
 - v4.0: **LLM优化架构** - SSH原生集成、JSON输出格式、Tool Description定义、Human-in-the-Loop护栏机制、Claude Code工作流设计
 - v4.1: **完成所有文档** - deep_checks.md、docker_fix_guide.md、SKILL.md更新
 - v4.2: **修正废弃包和流污染** - rssh替换为SSH原生命令限制、添加JSON输出流分离规范
+- v4.3: **补充核心功能** - 外部端口扫描脚本、Nginx安全检查脚本、源站IP暴露检测、告警分级机制配置
